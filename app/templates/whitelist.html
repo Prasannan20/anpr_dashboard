@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Whitelist (Authorized Plates)</h2>
+<div class="grid-2">
+  <div class="card">
+    <h3>Add / Update</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Vehicle Number</label>
+      <input name="vehicle_number" placeholder="KA01 AB 1234" required>
+      <label>Authorized As</label>
+      <select name="authorized_as">
+        <option>Principal</option><option>Faculty</option><option>Staff</option><option>Van</option>
+      </select>
+      <button type="submit">Save</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>List</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Plate</th><th>Authorized As</th><th></th></tr></thead>
+      <tbody>
+        {% for w in items %}
+        <tr>
+          <td>{{w.id}}</td><td>{{w.vehicle_number}}</td><td>{{w.authorized_as}}</td>
+          <td>
+            <form method="post" action="{{ url_for('main.whitelist_delete', wid=w.id) }}" onsubmit="return confirm('Delete entry?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button>Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

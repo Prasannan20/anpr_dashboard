@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Users (Admin)</h2>
+<div class="grid-2">
+  <div class="card">
+    <h3>Create User</h3>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Username</label>
+      <input name="username" required>
+      <label>Password</label>
+      <input name="password" type="password" required>
+      <label>Role</label>
+      <select name="role"><option>viewer</option><option>admin</option></select>
+      <button type="submit">Create</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Existing</h3>
+    <table>
+      <thead><tr><th>ID</th><th>User</th><th>Role</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{u.id}}</td><td>{{u.username}}</td><td>{{u.role}}</td>
+          <td>
+            {% if u.id != current_user.id %}
+            <form method="post" action="{{ url_for('main.delete_user', uid=u.id) }}" onsubmit="return confirm('Delete user?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button>Delete</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

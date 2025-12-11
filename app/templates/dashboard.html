@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Live Traffic</h2>
+<div class="card" style="margin-bottom: 20px; padding: 15px; background: #1a1a1a; border-radius: 8px;">
+  <h3 style="margin: 0 0 10px 0; font-size: 18px;">Total Vehicles Detected: <span id="totalVehicles" style="color: #4CAF50; font-weight: bold;">0</span></h3>
+</div>
+<div class="filters">
+  <div>
+    <span class="field-label">Vehicle</span>
+    <input id="filterVehicle" placeholder="Search vehicle (e.g., KA01 AB 1234)" aria-label="Vehicle search" />
+  </div>
+  <div>
+    <span class="field-label">From</span>
+    <input id="dateFrom" type="datetime-local" aria-label="From date time">
+  </div>
+  <div>
+    <span class="field-label">To</span>
+    <input id="dateTo" type="datetime-local" aria-label="To date time">
+  </div>
+  <div>
+    <span class="field-label">Status</span>
+    <select id="filterStatus" aria-label="Status">
+      <option value="">All</option><option>IN</option><option>OUT</option>
+    </select>
+  </div>
+  <div>
+    <span class="field-label">Role</span>
+    <select id="filterRole" aria-label="Authorized role">
+      <option value="">All</option>
+      <option value="Principal">Principal</option>
+      <option value="Faculty">Faculty</option>
+      <option value="Staff">Staff</option>
+      <option value="Van">Van</option>
+      <option value="Unauthorized">Unauthorized</option>
+    </select>
+  </div>
+  <div>
+    <span class="field-label">Authorization</span>
+    <select id="filterAuth" aria-label="Authorization">
+      <option value="">All</option>
+      <option value="true">Authorized</option>
+      <option value="false">Unauthorized</option>
+    </select>
+  </div>
+  <div>
+    <span class="field-label">Vehicle Type</span>
+    <select id="filterVehicleType" aria-label="Vehicle Type">
+      <option value="">All</option>
+      <option value="Car">Car</option>
+      <option value="Motorcycle">Motorcycle</option>
+      <option value="Bus">Bus</option>
+      <option value="Truck">Truck</option>
+      <option value="Vehicle">Vehicle</option>
+    </select>
+  </div>
+</div>
+<div class="filters mt">
+  {% if current_user.role == 'admin' %}
+    <button id="exportCsv" type="button">Export CSV</button>
+    <button id="exportPdf" type="button">Export PDF</button>
+    <button id="exportVansPdf" type="button">Export Vans PDF</button>
+  {% endif %}
+</div>
+
+<table id="tbl-main">
+  <thead>
+    <tr>
+      <th>S.No</th><th>Vehicle No</th><th>Vehicle Type</th><th>Time</th><th>Status</th>
+      <th>Authorized As</th><th>Color</th><th>Confidence</th><th>Alert</th><th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<h2>Camera</h2>
+<div class="card">
+  <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+    <button id="btnCamStart" type="button">Start Camera/Video</button>
+    <button id="btnCamStop" type="button">Stop</button>
+    <span style="opacity:.8">Use webcam (CAM_INDEX) or set VIDEO_PATH to a file.</span>
+  </div>
+  <div style="margin-top:10px">
+    <img id="camStream" src="/video_feed" alt="Camera stream" style="max-width:100%; border-radius:12px; border:1px solid #242424"/>
+  </div>
+</div>
+
+<h2>Van Watch</h2>
+<table id="tbl-vans">
+  <thead>
+    <tr>
+      <th>S.No</th><th>Vehicle No</th><th>Vehicle Type</th><th>Time</th><th>Status</th>
+      <th>Authorized As (Van)</th><th>Color</th><th>Confidence</th><th>Alert</th><th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+{% if current_user.role == 'admin' %}
+<div class="card mt">
+  <h3>Simulate Event (Demo)</h3>
+  <form id="simForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input name="vehicle_number" placeholder="KA01 AB 1234" required>
+    <select name="vehicle_type">
+      <option>Car</option>
+      <option>Motorcycle</option>
+      <option>Bus</option>
+      <option>Truck</option>
+      <option>Vehicle</option>
+    </select>
+    <select name="status"><option>IN</option><option>OUT</option></select>
+    <select name="authorized_as">
+      <option>Principal</option><option>Faculty</option><option>Staff</option><option>Van</option><option>Unauthorized</option>
+    </select>
+    <input name="confidence" type="number" min="0" max="100" value="96">
+    <button type="submit">Add Event</button>
+  </form>
+</div>
+{% endif %}
+
+<div id="modal" class="modal hidden">
+  <div class="modal-body">
+    <span id="modalClose">✖</span>
+    <img id="modalImg" src="" alt="Snapshot">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

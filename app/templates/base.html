@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>ANPR Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body data-role="{{ current_user.role if current_user.is_authenticated else '' }}">
+  <nav class="topbar">
+    <div class="brand">ANPR Dashboard</div>
+    <div class="nav-right">
+      {% if current_user.is_authenticated %}
+        <span>Logged in: <b>{{ current_user.username }}</b> ({{ current_user.role }})</span>
+        <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('main.users_page') }}">Users</a>
+          <a href="{{ url_for('main.whitelist_page') }}">Whitelist</a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% endif %}
+    </div>
+  </nav>
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for cat,msg in messages %}
+            <div class="flash-{{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
